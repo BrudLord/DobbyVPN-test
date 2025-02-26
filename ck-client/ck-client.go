@@ -23,7 +23,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 
-        "github.com/database64128/swgp-go/logging"
+        "github.com/database64128/swgp-go/tslog"
 	"github.com/database64128/swgp-go/service"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
