@@ -43,7 +43,7 @@ jobs:
           cp ck-client/protector.go Cloak/Windows
           cd Cloak
           git clone https://github.com/database64128/swgp-go.git
-          echo "replace github.com/database64128/swgp-go v0.0.0 => ./swgp-go" >> go.mod
+          echo "replace github.com/database64128/swgp-go v1.6.0 => ./swgp-go" >> go.mod
           cd ..
           cd Cloak/Windows
           go mod tidy
