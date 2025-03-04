@@ -1,0 +1,100 @@
+name: DobbyVPN Build
+
+on: [push, workflow_dispatch, workflow_call]
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: aarch64
+            os: macos-11
+            target: macos
+            lipo-arch: arm64
+          - arch: amd64
+            os: macos-11
+            target: macos
+            lipo-arch: x86_64
+          - arch: amd64
+            os: windows-2019
+            target: windows
+          - arch: amd64
+            os: ubuntu-20.04
+            target: linux
+    name: ${{ matrix.target }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          check-latest: true
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: >
+            ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*',
+            '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+
+      - name: Cache Jetbrains Runtime JDK
+        uses: actions/cache@v4
+        with:
+          path: ./app/jbr
+          key: jbr-${{ hashFiles('**/jbr.yaml') }}
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Conveyor build
+        uses: hydraulic-software/conveyor/actions/build@v14.3
+        with:
+          command: make site
+          extra_flags: -f build.conveyor.conf
+          signing_key: ${{ secrets.SIGNING_KEY }}
+          agree_to_license: 1
+
+      - name: CheckSum
+        run: |
+          rm -f icon.svg download.html
+          shasum -a 256 * > checksum.txt
+        working-directory: ./output
+
+      - name: Upload files to GitHub Release
+        uses: actions/upload-release-asset@v1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          release_id: ${{ steps.create_release.outputs.id }}
+          asset_path: ./output
+          asset_name: ${{ matrix.target }}-${{ matrix.arch }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output/index.html
+
+      # conveyor default cache directory is .conveyor/cache
+      # Avoid caching it, causing Github space payment
+      - name: Cleanup Conveyor
+        if: always()
+        run: |
+          rm -rf .conveyor/cache/*
+
+      - name: Display file tree with sizes
+        run: |
+          echo "Displaying the size of files and directories in 'output' directory:"
+          du -ah output | sort -rh
+
+      # delete output directory to free up space, Github Action only has 14G space,
+      # to avoid the failure of insufficient space in the subsequent post recycling steps
+      - name: Delete output directory
+        run: rm -rf output
