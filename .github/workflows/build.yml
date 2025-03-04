@@ -54,7 +54,9 @@ jobs:
         run: chmod +x ./ck-client-desktop-kotlin/Client/gradlew
 
       - name: Build with Gradle
-        run: ./ck-client-desktop-kotlin/Client/gradlew build
+        run: |
+          cd ck-client-desktop-kotlin/Client
+          gradlew build
 
       - name: Conveyor build
         uses: hydraulic-software/conveyor/actions/build@v14.3
