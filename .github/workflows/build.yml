@@ -50,13 +50,11 @@ jobs:
           path: ./app/jbr
           key: jbr-${{ hashFiles('**/jbr.yaml') }}
 
-      - name: Make gradlew executable
-        run: chmod +x ./ck-client-desktop-kotlin/Client/gradlew
-
       - name: Build with Gradle
         run: |
           cd ck-client-desktop-kotlin/Client
-          gradlew build
+          chmod +x ./gradlew
+          ./gradlew build
 
       - name: Conveyor build
         uses: hydraulic-software/conveyor/actions/build@v14.3
