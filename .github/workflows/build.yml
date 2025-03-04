@@ -51,13 +51,13 @@ jobs:
           key: jbr-${{ hashFiles('**/jbr.yaml') }}
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./ck-client-desktop-kotlin/Client/gradlew build
 
       - name: Conveyor build
         uses: hydraulic-software/conveyor/actions/build@v14.3
         with:
           command: make site
-          extra_flags: -f build.conveyor.conf
+          extra_flags: -f ck-client-desktop-kotlin/Client/conveyor.conf
           signing_key: ${{ secrets.SIGNING_KEY }}
           agree_to_license: 1
 
