@@ -50,6 +50,9 @@ jobs:
           path: ./app/jbr
           key: jbr-${{ hashFiles('**/jbr.yaml') }}
 
+      - name: Make gradlew executable
+        run: chmod +x ./ck-client-desktop-kotlin/Client/gradlew
+
       - name: Build with Gradle
         run: ./ck-client-desktop-kotlin/Client/gradlew build
 
