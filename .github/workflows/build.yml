@@ -76,9 +76,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/package1.zip
-          asset_name: package1.zip
-          asset_content_type: application/zip
+          asset_path: ./output/combined-vpn-client_1.0_amd64.deb
+          asset_name: combined-vpn-client_1.0_amd64.deb
+          asset_content_type: application/deb
 
       - if: ${{ matrix.target == 'windows' }}
         name: Conveyor build
