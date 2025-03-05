@@ -1,6 +1,11 @@
 name: DobbyVPN Build
 
 on: [push, workflow_dispatch, workflow_call]
+
+env:
+  # Set a known Gradle cache directory relative to the workspace.
+  GRADLE_USER_HOME: ${{ runner.workspace }}/.gradle
+
 jobs:
   build:
     strategy:
@@ -38,8 +43,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
+            ${{ env.GRADLE_USER_HOME }}/caches
+            ${{ env.GRADLE_USER_HOME }}/wrapper
           key: >
             ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*',
             '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
@@ -54,8 +59,31 @@ jobs:
         run: |
           cd ck-client-desktop-kotlin/Client
           chmod +x ./gradlew
-          ./gradlew build
-          ls /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.skiko
+          # Optionally force refresh of dependencies:
+          ./gradlew build --refresh-dependencies
+          # List the skiko directory to check what has been downloaded:
+          ls "${{ env.GRADLE_USER_HOME }}/caches/modules-2/files-2.1/org.jetbrains.skiko"
+
+      # (Optional) Dynamically update the conveyor configuration to use the GRADLE_USER_HOME value.
+      - name: Update conveyor.conf with dynamic gradle cache path
+        run: |
+          # Replace the placeholder '${gradle-cache}' with the actual Gradle cache directory.
+          # Ensure your conveyor.conf uses '${gradle-cache}' as a placeholder for these paths.
+          sed -i "s|\${gradle-cache}|${{ env.GRADLE_USER_HOME }}|g" ck-client-desktop-kotlin/Client/conveyor.conf
+
+      # (Optional) Alternatively, if you need to resolve the skiko JAR path dynamically,
+      # you can search for it and export it as an environment variable.
+      - name: Discover skiko JAR path for Windows (if applicable)
+        if: matrix.target == 'windows'
+        id: find_skiko
+        run: |
+          SKIKO_PATH=$(find "${{ env.GRADLE_USER_HOME }}" -path "*org.jetbrains.skiko/skiko-awt-runtime-windows-x64-*.jar" | head -n 1)
+          if [ -z "$SKIKO_PATH" ]; then
+            echo "skiko JAR not found!" && exit 1
+          fi
+          echo "skiko_path=$SKIKO_PATH" >> $GITHUB_OUTPUT
+          echo "Found skiko JAR at: $SKIKO_PATH"
+      # (If needed, modify the conveyor.conf or pass the skiko path as a parameter to Conveyor build)
 
       - name: Conveyor build
         uses: hydraulic-software/conveyor/actions/build@v16.0
@@ -86,8 +114,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output/index.html
 
-      # conveyor default cache directory is .conveyor/cache
-      # Avoid caching it, causing Github space payment
       - name: Cleanup Conveyor
         if: always()
         run: |
@@ -98,7 +124,5 @@ jobs:
           echo "Displaying the size of files and directories in 'output' directory:"
           du -ah output | sort -rh
 
-      # delete output directory to free up space, Github Action only has 14G space,
-      # to avoid the failure of insufficient space in the subsequent post recycling steps
       - name: Delete output directory
         run: rm -rf output
