@@ -52,6 +52,34 @@ jobs:
           signing_key: ${{ secrets.SIGNING_KEY }}
           agree_to_license: 1
 
+      - name: Display file tree with sizes
+        run: |
+          echo "Displaying the size of files and directories in 'output' directory:"
+          du -ah output | sort -rh
+
+      # Create a GitHub release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v${{ github.run_number }}"
+          release_name: "Release v${{ github.run_number }}"
+          draft: false
+          prerelease: false
+
+      # Upload the first package (adjust the file name as needed)
+      - name: Upload Package 1
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./output/package1.zip
+          asset_name: package1.zip
+          asset_content_type: application/zip
+
       - if: ${{ matrix.target == 'windows' }}
         name: Conveyor build
         uses: hydraulic-software/conveyor/actions/build@v16.0
