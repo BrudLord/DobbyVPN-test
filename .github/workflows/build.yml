@@ -55,7 +55,7 @@ jobs:
           cd ck-client-desktop-kotlin/Client
           chmod +x ./gradlew
           ./gradlew build
-          ls ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.skiko
+          ls /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.skiko
 
       - name: Conveyor build
         uses: hydraulic-software/conveyor/actions/build@v16.0
