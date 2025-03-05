@@ -3,26 +3,8 @@ name: DobbyVPN Build
 on: [push, workflow_dispatch, workflow_call]
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: aarch64
-            os: macos-11
-            target: macos
-            lipo-arch: arm64
-          - arch: amd64
-            os: macos-11
-            target: macos
-            lipo-arch: x86_64
-          - arch: amd64
-            os: windows-2019
-            target: windows
-          - arch: amd64
-            os: ubuntu-20.04
-            target: linux
-    name: ${{ matrix.target }} ${{ matrix.arch }}
-    runs-on: ${{ matrix.os }}
+    name: Make release
+    runs-on: ubuntu@latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
