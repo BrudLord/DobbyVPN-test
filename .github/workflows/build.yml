@@ -47,7 +47,7 @@ jobs:
       - name: Cache Jetbrains Runtime JDK
         uses: actions/cache@v4
         with:
-          path: ./app/jbr
+          path: ./.github/workflows/jbr
           key: jbr-${{ hashFiles('**/jbr.yaml') }}
 
       - name: Build with Gradle
