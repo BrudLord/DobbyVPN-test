@@ -107,11 +107,11 @@ jobs:
           asset_content_type: application/windows
 
       - name: Deploy site to GitHub Pages
-          uses: peaceiris/actions-gh-pages@v3
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./output
-            publish_branch: gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: gh-pages
 
       - name: Cleanup Conveyor
         if: always()
