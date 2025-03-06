@@ -36,6 +36,11 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation("net.java.dev.jna:jna:5.13.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+                implementation("org.jetbrains.skiko:skiko-awt-runtime-windows-x64:0.7.97")
+                implementation("org.jetbrains.skiko:skiko-awt-runtime-macos-x64:0.7.97")
+                implementation("org.jetbrains.skiko:skiko-awt-runtime-macos-arm64:0.7.97")
+                implementation("org.jetbrains.skiko:skiko-awt-runtime-linux-x64:0.7.97")
             }
         }
     }
