@@ -112,6 +112,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output
           publish_branch: gh-pages
+          exclude: '**/*.deb,**/*.tar.gz,**/*.zip,**/*.msix'
 
       - name: Cleanup Conveyor
         if: always()
