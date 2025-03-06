@@ -1,20 +1,10 @@
 name: DobbyVPN Build
 
 on: [push, workflow_dispatch, workflow_call]
+
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: amd64
-            os: windows-2019
-            target: windows
-          - arch: amd64
-            os: ubuntu-20.04
-            target: linux
-    name: ${{ matrix.target }} ${{ matrix.arch }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -33,8 +23,7 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: >
-            ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*',
-            '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+            ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
 
       - name: Build with Gradle
         run: |
@@ -43,8 +32,7 @@ jobs:
           ./gradlew build
           ls /home/runner/.gradle/caches/modules-2/files-2.1/org.jetbrains.skiko
 
-      - if: ${{ matrix.target == 'linux' }}
-        name: Conveyor build
+      - name: Conveyor build for Debian package
         uses: hydraulic-software/conveyor/actions/build@v16.0
         with:
           command: make debian-package
@@ -52,12 +40,11 @@ jobs:
           signing_key: ${{ secrets.SIGNING_KEY }}
           agree_to_license: 1
 
-      - name: Display file tree with sizes
+      - name: Display file tree with sizes after Linux build
         run: |
           echo "Displaying the size of files and directories in 'output' directory:"
           du -ah output | sort -rh
 
-      # Create a GitHub release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -69,8 +56,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Upload the first package (adjust the file name as needed)
-      - name: Upload Package 1
+      - name: Upload Debian
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -80,28 +66,15 @@ jobs:
           asset_name: combined-vpn-client_1.0_amd64.deb
           asset_content_type: application/deb
 
-      - if: ${{ matrix.target == 'windows' }}
-        name: Conveyor build
-        uses: hydraulic-software/conveyor/actions/build@v16.0
-        with:
-          command: make windows-msix
-          extra_flags: "--passphrase=\"${{ secrets.CONVEYOR_PASSPHRASE }}\" -f ck-client-desktop-kotlin/Client/conveyor.conf"
-          signing_key: ${{ secrets.SIGNING_KEY }}
-          agree_to_license: 1
-
-      # conveyor default cache directory is .conveyor/cache
-      # Avoid caching it, causing Github space payment
       - name: Cleanup Conveyor
         if: always()
         run: |
           rm -rf .conveyor/cache/*
 
-      - name: Display file tree with sizes
+      - name: Display file tree with sizes after Windows build
         run: |
           echo "Displaying the size of files and directories in 'output' directory:"
           du -ah output | sort -rh
 
-      # delete output directory to free up space, Github Action only has 14G space,
-      # to avoid the failure of insufficient space in the subsequent post recycling steps
       - name: Delete output directory
         run: rm -rf output
