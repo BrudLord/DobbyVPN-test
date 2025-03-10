@@ -37,7 +37,7 @@ jobs:
         env:
           OAUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          command: make copied-site
+          command: make copied-site -o ./output/site
           extra_flags: "--passphrase=\"${{ secrets.CONVEYOR_PASSPHRASE }}\" -f ck-client-desktop-kotlin/Client/conveyor.conf"
           signing_key: ${{ secrets.SIGNING_KEY }}
           agree_to_license: 1
@@ -54,67 +54,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output
           cname: download.dobbyvpn.org
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: "v${{ github.run_number }}"
-          release_name: "Release v${{ github.run_number }}"
-          draft: false
-          prerelease: false
-
-      - name: Upload Debian
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/debian/combined-vpn-client_1.0_amd64.deb
-          asset_name: combined-vpn-client-linux.deb
-          asset_content_type: application/deb
-
-      - name: Upload TarGz
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/combined-vpn-client-1.0-linux-amd64.tar.gz
-          asset_name: combined-vpn-client-linux.tar.gz
-          asset_content_type: application/tar_gz
-
-      - name: Upload MacOS aarch64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/combined-vpn-client-1.0-mac-aarch64.zip
-          asset_name: combined-vpn-client-mac-aarch64.zip
-          asset_content_type: application/mac_aarch64
-
-      - name: Upload MacOS amd64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/combined-vpn-client-1.0-mac-amd64.zip
-          asset_name: combined-vpn-client-mac-amd64.zip
-          asset_content_type: application/mac_amd64
-
-      - name: Upload Windows
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/combined-vpn-client-1.0.x64.msix
-          asset_name: combined-vpn-client-windows.msix
-          asset_content_type: application/windows
 
       - name: Cleanup Conveyor
         if: always()
