@@ -52,7 +52,6 @@ jobs:
 
       - name: Adjust Conveyor output
         run: |
-          mkdir ./output/site
           mv ./download.html ./output/site/index.html
           mv ./icon.svg ./output/site/
 
