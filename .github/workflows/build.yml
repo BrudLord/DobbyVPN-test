@@ -60,16 +60,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output/site
-
-      - name: Cleanup Conveyor
-        if: always()
-        run: |
-          rm -rf .conveyor/cache/*
-
-      - name: Display file tree with sizes after Windows build
-        run: |
-          echo "Displaying the size of files and directories in 'output' directory:"
-          du -ah output | sort -rh
-
-      - name: Delete output directory
-        run: rm -rf output
