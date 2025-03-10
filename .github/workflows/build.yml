@@ -50,12 +50,17 @@ jobs:
           echo "Displaying the size of files and directories in 'output/site' directory:"
           du -ah output/site | sort -rh
 
+      - name: Adjust Conveyor output
+        run: |
+          mkdir ./output/site
+          mv ./download.html ./output/site/index.html
+          mv ./icon.svg ./output/site/
+
       - name: Deploy download page to Github Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./output
-          cname: download.dobbyvpn.org
+          publish_dir: ./output/site
 
       - name: Cleanup Conveyor
         if: always()
