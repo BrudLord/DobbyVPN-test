@@ -53,7 +53,7 @@ jobs:
       - name: Adjust Conveyor output
         run: |
           mv ./download.html ./output/site/index.html
-          mv ./icon.svg ./output/site/
+          mv ./icon.png ./output/site/
 
       - name: Deploy download page to Github Pages
         uses: peaceiris/actions-gh-pages@v3
