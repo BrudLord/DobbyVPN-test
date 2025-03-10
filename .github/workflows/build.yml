@@ -47,6 +47,8 @@ jobs:
         run: |
           echo "Displaying the size of files and directories in 'output' directory:"
           du -ah output | sort -rh
+          echo "Displaying the size of files and directories in 'output/site' directory:"
+          du -ah output/site | sort -rh
 
       - name: Deploy download page to Github Pages
         uses: peaceiris/actions-gh-pages@v3
