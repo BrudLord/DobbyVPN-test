@@ -37,15 +37,23 @@ jobs:
         env:
           OAUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          command: make copied-site
+          command: make site
           extra_flags: "--passphrase=\"${{ secrets.CONVEYOR_PASSPHRASE }}\" -f ck-client-desktop-kotlin/Client/conveyor.conf"
           signing_key: ${{ secrets.SIGNING_KEY }}
           agree_to_license: 1
+
 
       - name: Display file tree with sizes after Linux build
         run: |
           echo "Displaying the size of files and directories in 'output' directory:"
           du -ah output | sort -rh
+
+      - name: Deploy download page to Github Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          cname: download.dobbyvpn.org
 
       - name: Create Release
         id: create_release
