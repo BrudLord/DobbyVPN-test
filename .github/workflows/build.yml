@@ -37,7 +37,14 @@ jobs:
         env:
           OAUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          command: make site -o ./output/site
+          command: make copied-site -o ./output/site
           extra_flags: "--passphrase=\"${{ secrets.CONVEYOR_PASSPHRASE }}\" -f ck-client-desktop-kotlin/Client/conveyor.conf"
           signing_key: ${{ secrets.SIGNING_KEY }}
           agree_to_license: 1
+
+      - name: List artifacts
+        run: |
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/actions/artifacts \
+          | jq '.artifacts[] | {name: .name, url: .archive_download_url}'
