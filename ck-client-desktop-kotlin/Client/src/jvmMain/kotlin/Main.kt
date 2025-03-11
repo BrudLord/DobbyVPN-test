@@ -26,7 +26,7 @@ fun main() = application {
     })
 
     // Отображение основного окна приложения
-    Window(onCloseRequest = ::exitApplication, title = "Dobby VPN") {
+    Window(onCloseRequest = ::exitApplication, title = "Dobby VPN 13") {
         MainScreen()
     }
 }
